@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="com.nieyue.dao.DailyDataDao">
+<!-- 添加每日数据 -->
+<insert id="addDailyData" parameterType="DailyData" keyProperty="dailyDataId" flushCache="true"  >  
+   INSERT IGNORE INTO
+   		  daily_data_tb 
+   		 (pvs,uvs,ips,reading_number,create_date,financial_id,acount_id)
+   VALUES
+    	 (#{pvs},#{uvs},#{ips},#{readingNumber},#{createDate},#{financialId},#{acountId})  
+</insert>  
+<!-- 更新每日数据 -->
+<update id="updateDailyData" parameterType="DailyData" >  
+    UPDATE 
+    	daily_data_tb 
+    SET 
+    	pvs=#{pvs},
+    	uvs=#{uvs},
+    	ips=#{ips},
+    	reading_number=#{readingNumber},
+    	create_date=#{createDate},
+    	financial_id=#{financialId},
+    	acount_id=#{acountId}
+    WHERE
+    	 daily_data_id=#{dailyDataId} 
+</update> 
+<!-- 存储或更新每日数据 -->
+<insert id="saveOrUpdateDailyData" >  
+  <selectKey keyProperty="count" resultType="int" order="BEFORE">  
+    select count(daily_data_id) from daily_data_tb 
+    where 
+    financial_id = #{DailyData.financialId}
+    AND   
+    acount_id = #{DailyData.acountId}
+    AND   
+     DATE(create_date )=   DATE(#{DailyData.createDate} )
+  </selectKey>  
+  <if test="count > 0">  
+    update daily_data_tb   
+    set pvs=pvs+1,
+    	uvs=uvs+#{uv},
+    	ips=ips+#{ip},
+    	reading_number=reading_number+#{readingNumber}
+    where
+     financial_id = #{DailyData.financialId}
+    AND   
+    acount_id = #{DailyData.acountId}
+    AND   
+    DATE(create_date) =  DATE(#{DailyData.createDate})
+  </if>  
+  <if test="count==0">  
+     INSERT IGNORE INTO
+   		  daily_data_tb 
+   		 (
+   		<!--  daily_data_id, -->
+   		 pvs,
+   		 uvs,
+   		 ips,
+   		 reading_number,
+   		 create_date,
+   		 financial_id,
+   		 acount_id
+   		 )
+   VALUES
+    	 (
+    	 <!-- #{DailyData.dailyDataId}, -->
+    	 1,
+    	 1,
+    	 1,
+    	<!--  DATE(#{DailyData.createDate}), -->
+    	 #{readingNumber},
+    DATE( #{DailyData.createDate}),
+    	 #{DailyData.financialId},
+    	 #{DailyData.acountId}
+    	 )
+  </if>  
+</insert> 
+<!-- 删除每日数据-->
+<delete id="delDailyData"  parameterType="Integer" >  
+    DELETE FROM
+    	 daily_data_tb 
+    	 WHERE daily_data_id=#{dailyDataId}
+</delete>  
+<!-- 加载每日数据-->
+<select id="loadDailyData" parameterType="Integer" resultType="DailyData" >
+SELECT 
+		daily_data_id,
+	 	pvs,
+	 	uvs,
+	 	ips,
+	 	reading_number,
+    	create_date,
+    	financial_id,
+    	acount_id
+FROM daily_data_tb 
+<where>
+<if test="dailyDataId!=null">
+AND daily_data_id=#{dailyDataId}
+</if>
+<if test="createDate!=null">
+AND  DATE(create_date)= DATE(#{createDate})
+</if>
+<if test="financialId!=null">
+AND financial_id=#{financialId}
+</if>
+<if test="acountId!=null">
+AND acount_id=#{acountId}
+</if>
+</where>
+</select>
+
+<!-- 分页查询每日数据-->
+<select id="browsePagingDailyData" resultType="DailyData">  
+    SELECT
+	    daily_data_id,
+	 	pvs,
+	 	uvs,
+	 	ips,
+	 	reading_number,
+    	create_date,
+    	financial_id,
+    	acount_id
+	FROM daily_data_tb
+	<where>
+	<if test="createDate!=null">
+	AND  DATE(create_date)= DATE(#{createDate})
+	</if>
+	<if test="financialId!=null">
+	AND  financial_id=#{financialId}
+	</if>
+	<if test="acountId!=null">
+	AND acount_id=#{acountId}
+	</if>
+	AND ${orderName} 
+	<if test="orderWay=='asc'">
+	<![CDATA[>=]]> 
+	</if>
+	<if test="orderWay=='desc'">
+	  <![CDATA[<= ]]>
+	</if>
+	(SELECT ${orderName} FROM daily_data_tb 
+	<where>
+	<if test="createDate!=null">
+	AND  DATE(create_date)= DATE(#{createDate})
+	</if>
+	<if test="financialId!=null">
+	AND  financial_id=#{financialId}
+	</if>
+	<if test="acountId!=null">
+	AND acount_id=#{acountId}
+	</if>
+	</where>
+		ORDER BY 
+			${orderName}  ${orderWay}
+		LIMIT #{pageNum}, 1
+		) 
+	</where>
+	ORDER BY
+		${orderName}  ${orderWay}
+	LIMIT
+		#{pageSize}
+</select> 
+
+<!-- 统计每日数据 -->
+<select id="statisticsDailyData"  resultType="DailyData">  
+	SELECT
+	 	COALESCE(sum(pvs),0) pvs,
+	 	COALESCE(sum(uvs),0) uvs,
+	 	COALESCE(sum(ips),0) ips,
+	 	COALESCE(sum(reading_number),0) reading_number,
+    	<if test="financialId!=null">
+    	financial_id,
+    	</if>
+    	<if test="acountId!=null">
+    	acount_id,
+    	</if>
+    	create_date
+	FROM daily_data_tb
+	<where>
+	<if test="startDate!=null">
+	AND  DATE(create_date)<![CDATA[>=]]> DATE(#{startDate})
+	</if>
+	<if test="endDate!=null">
+	AND  DATE(create_date)<![CDATA[<=]]> DATE(#{endDate})
+	</if>
+	<if test="financialId!=null">
+	AND  financial_id=#{financialId}
+	</if>
+	<if test="acountId!=null">
+	AND acount_id=#{acountId}
+	</if>
+	</where>
+	GROUP BY DATE(create_date)
+	ORDER BY
+		${orderName}  ${orderWay}
+	LIMIT
+		#{pageSize}
+</select>   
+<!-- 统计记录条数 -->
+<select id="countAll"  resultType="int">  
+	SELECT
+	 	count(daily_data_id)
+	FROM daily_data_tb
+	<where>
+		<if test="createDate!=null">
+		AND  DATE(create_date)= DATE(#{createDate})
+		</if>
+		<if test="financialId!=null">
+		AND  financial_id=#{financialId}
+		</if>
+		<if test="acountId!=null">
+		AND acount_id=#{acountId}
+		</if>
+	</where>
+</select>   
+   
+ 
+</mapper>

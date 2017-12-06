@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="com.nieyue.dao.FinancialCateDao">
+<!-- 添加金融类型 -->
+<insert id="addFinancialCate" parameterType="FinancialCate" keyProperty="financialCateId" flushCache="true"  >  
+   INSERT IGNORE INTO
+   		  financial_cate_tb 
+   		 (name,update_date)
+   VALUES
+    	 (#{name},#{updateDate})  
+</insert>  
+<!-- 更新金融类型 -->
+<update id="updateFinancialCate" parameterType="FinancialCate" >  
+    UPDATE 
+    	financial_cate_tb 
+    SET 
+    	name=#{name},
+    	update_date=#{updateDate}
+    WHERE
+    	 financial_cate_id=#{financialCateId} 
+</update> 
+<!-- 删除金融类型-->
+<delete id="delFinancialCate"  parameterType="Integer" >  
+    DELETE FROM
+    	 financial_cate_tb 
+    	 WHERE financial_cate_id=#{financialCateId}
+</delete>  
+<!-- 加载金融类型-->
+<select id="loadFinancialCate" parameterType="Integer" resultType="FinancialCate" >
+SELECT 
+		financial_cate_id,
+	 	name,
+    	update_date
+FROM financial_cate_tb 
+<where>
+<if test="financialCateId!=null">
+AND financial_cate_id=#{financialCateId}
+</if>
+<if test="name!=null">
+AND name=#{name}
+</if>
+</where>
+</select>
+
+<!-- 分页查询金融类型-->
+<select id="browsePagingFinancialCate" resultType="FinancialCate">  
+        SELECT
+	    financial_cate_id,
+	 	name,
+    	update_date
+	FROM financial_cate_tb
+	WHERE ${orderName} 
+	<if test="orderWay=='asc'">
+	<![CDATA[>=]]> 
+	</if>
+	<if test="orderWay=='desc'">
+	  <![CDATA[<= ]]>
+	</if>
+	(SELECT ${orderName} FROM financial_cate_tb 
+		ORDER BY 
+			${orderName}  ${orderWay}
+		LIMIT #{pageNum}, 1
+		) 
+	ORDER BY
+		${orderName}  ${orderWay}
+	LIMIT
+		#{pageSize}
+</select> 
+
+<!-- 统计记录条数 -->
+<select id="countAll"  resultType="int">  
+	SELECT
+	 	count(financial_cate_id)
+	FROM financial_cate_tb
+</select>   
+   
+ 
+</mapper>

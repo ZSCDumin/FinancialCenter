@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="com.nieyue.dao.DataDao">
+<!-- 添加数据 -->
+<insert id="addData" parameterType="Data" keyProperty="dataId" flushCache="true"  >  
+   INSERT IGNORE INTO
+   		  data_tb 
+   		 (pvs,uvs,ips,reading_number,create_date,financial_id,acount_id)
+   VALUES
+    	 (#{pvs},#{uvs},#{ips},#{readingNumber},#{createDate},#{financialId},#{acountId})  
+</insert>  
+<!-- 更新数据 -->
+<update id="updateData" parameterType="Data" >  
+    UPDATE 
+    	data_tb 
+    SET 
+    	pvs=#{pvs},
+    	uvs=#{uvs},
+    	ips=#{ips},
+    	reading_number=#{readingNumber},
+    	create_date=#{createDate},
+    	financial_id=#{financialId},
+    	acount_id=#{acountId}
+    WHERE
+    	 data_id=#{dataId} 
+</update> 
+<!-- 存储或更新数据 -->
+<insert id="saveOrUpdateData" >  
+  <selectKey keyProperty="count" resultType="int" order="BEFORE">  
+    select count(data_id) from data_tb 
+    where 
+    financial_id = #{Data.financialId}
+    AND   
+    acount_id = #{Data.acountId}
+    AND   
+    create_date = #{Data.createDate} 
+  </selectKey>  
+  <if test="count > 0">  
+    update data_tb   
+    set pvs=pvs+1,
+    	uvs=uvs+#{uv},
+    	ips=ips+#{ip},
+    	reading_number=reading_number+#{readingNumber}
+    where
+     financial_id = #{Data.financialId}
+    AND   
+    acount_id = #{Data.acountId}
+    AND   
+    create_date = #{Data.createDate} 
+  </if>  
+  <if test="count==0">  
+     INSERT IGNORE INTO
+   		  data_tb 
+   		 (
+   		<!--  data_id, -->
+   		 pvs,
+   		 uvs,
+   		 ips,
+   		 reading_number,
+   		 create_date,
+   		 financial_id,
+   		 acount_id
+   		 )
+   VALUES
+    	 (
+    	 <!-- #{Data.dataId}, -->
+    	 1,
+    	 1,
+    	 1,
+    	<!--  DATE(#{Data.createDate}), -->
+    	 #{readingNumber},
+    	  #{Data.createDate},
+    	 #{Data.financialId},
+    	 #{Data.acountId}
+    	 )
+  </if>  
+</insert> 
+<!-- 删除数据-->
+<delete id="delData"  parameterType="Integer" >  
+    DELETE FROM
+    	 data_tb 
+    	 WHERE data_id=#{dataId}
+</delete>  
+<!-- 加载数据-->
+<select id="loadData" parameterType="Integer" resultType="Data" >
+SELECT 
+		data_id,
+	 	pvs,
+	 	uvs,
+	 	ips,
+	 	reading_number,
+    	create_date,
+    	financial_id,
+    	acount_id
+FROM data_tb 
+<where>
+<if test="dataId!=null">
+AND data_id=#{dataId}
+</if>
+<if test="createDate!=null">
+AND create_date=#{createDate}
+</if>
+<if test="financialId!=null">
+AND financial_id=#{financialId}
+</if>
+<if test="acountId!=null">
+AND acount_id=#{acountId}
+</if>
+</where>
+</select>
+
+<!-- 分页查询数据-->
+<select id="browsePagingData" resultType="Data">  
+    SELECT
+	    data_id,
+	 	pvs,
+	 	uvs,
+	 	ips,
+	 	reading_number,
+    	create_date,
+    	financial_id,
+    	acount_id
+	FROM data_tb
+	<where>
+	<if test="createDate!=null">
+	AND create_date=#{createDate}
+	</if>
+	<if test="financialId!=null">
+	AND  financial_id=#{financialId}
+	</if>
+	<if test="acountId!=null">
+	AND acount_id=#{acountId}
+	</if>
+	AND ${orderName} 
+	<if test="orderWay=='asc'">
+	<![CDATA[>=]]> 
+	</if>
+	<if test="orderWay=='desc'">
+	  <![CDATA[<= ]]>
+	</if>
+	(SELECT ${orderName} FROM data_tb 
+	<where>
+	<if test="createDate!=null">
+	AND create_date=#{createDate}
+	</if>
+	<if test="financialId!=null">
+	AND  financial_id=#{financialId}
+	</if>
+	<if test="acountId!=null">
+	AND acount_id=#{acountId}
+	</if>
+	</where>
+		ORDER BY 
+			${orderName}  ${orderWay}
+		LIMIT #{pageNum}, 1
+		) 
+	</where>
+	ORDER BY
+		${orderName}  ${orderWay}
+	LIMIT
+		#{pageSize}
+</select> 
+
+<!-- 统计数据 -->
+<select id="statisticsData"  resultType="Data">  
+	SELECT
+	 	COALESCE(sum(pvs),0) pvs,
+	 	COALESCE(sum(uvs),0) uvs,
+	 	COALESCE(sum(ips),0) ips,
+	 	COALESCE(sum(reading_number),0) reading_number,
+    	<if test="financialId!=null">
+    	financial_id,
+    	</if>
+    	<if test="acountId!=null">
+    	acount_id,
+    	</if>
+    	create_date
+	FROM data_tb
+	<where>
+	<if test="startDate!=null">
+	AND  create_date<![CDATA[>=]]> #{startDate}
+	</if>
+	<if test="endDate!=null">
+	AND  create_date<![CDATA[<=]]> #{endDate}
+	</if>
+	<if test="financialId!=null">
+	AND  financial_id=#{financialId}
+	</if>
+	<if test="acountId!=null">
+	AND acount_id=#{acountId}
+	</if>
+	</where>
+	GROUP BY create_date
+	ORDER BY
+		${orderName}  ${orderWay}
+	LIMIT
+		#{pageSize}
+</select>   
+<!-- 统计记录条数 -->
+<select id="countAll"  resultType="int">  
+	SELECT
+	 	count(data_id)
+	FROM data_tb
+	<where>
+		<if test="createDate!=null">
+		AND create_date=#{createDate}
+		</if>
+		<if test="financialId!=null">
+		AND  financial_id=#{financialId}
+		</if>
+		<if test="acountId!=null">
+		AND acount_id=#{acountId}
+		</if>
+	</where>
+</select>   
+   
+ 
+</mapper>

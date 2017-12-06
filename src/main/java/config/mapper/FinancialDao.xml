@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="com.nieyue.dao.FinancialDao">
+<!-- 添加金融-->
+<insert id="addFinancial" parameterType="Financial" keyProperty="financialId" flushCache="true"  >  
+   INSERT IGNORE INTO
+   		  Financial_tb 
+   		 (
+   		 title,
+   		 term,
+   		 recommend,
+   		 img_address,
+   		 strategy,
+   		 annual_transformation,
+   		 net_add_interest,
+   		 comprehensive_annual_transformation,
+   		 project_total_money,
+   		 investment_money,
+   		 start_investment_money,
+   		 interest_method,
+   		 repayment_method,
+   		 pvs,
+   		 uvs,
+   		 ips,
+   		 reading_number,
+   		 redirect_url,
+   		 status,
+   		 financial_cate_id,
+   		 create_date,
+   		 update_date)
+   VALUES
+    	 (
+    	 #{title},
+    	 #{term},
+    	 #{recommend},
+    	 #{imgAddress},
+    	 #{strategy},
+    	 #{annualTransformation},
+    	 #{netAddInterest},
+    	 #{comprehensiveAnnualTransformation},
+    	 #{projectTotalMoney},
+    	 #{investmentMoney},
+    	 #{startInvestmentMoney},
+    	 #{interestMethod},
+    	 #{repaymentMethod},
+    	 #{pvs},
+    	 #{uvs},
+    	 #{ips},
+    	 #{readingNumber},
+    	 #{redirectUrl},
+    	 #{status},
+    	 #{financialCateId},
+    	 #{createDate},
+    	 #{updateDate})  
+</insert>  
+<!-- 更新金融-->
+<update id="updateFinancial" parameterType="Financial" >  
+    UPDATE 
+    	financial_tb 
+   <set>
+    	<if test="title!=null">
+    	title=#{title},
+    	</if>
+    	<if test="term!=null">
+    	term=#{term},
+    	</if>
+    	<if test="recommend!=null">
+    	recommend=#{recommend},
+    	</if>
+    	<if test="imgAddress!=null">
+    	img_address=#{imgAddress},
+    	</if>
+    	<if test="strategy!=null">
+    	strategy=#{strategy},
+    	</if>
+    	<if test="annualTransformation!=null">
+    	annual_transformation=#{annualTransformation},
+    	</if>
+    	<if test="netAddInterest!=null">
+    	net_add_interest=#{netAddInterest},
+    	</if>
+    	<if test="comprehensiveAnnualTransformation!=null">
+    	comprehensive_annual_transformation=#{comprehensiveAnnualTransformation},
+    	</if>
+    	<if test="projectTotalMoney!=null">
+    	project_total_money=#{projectTotalMoney},
+    	</if>
+    	<if test="investmentMoney!=null">
+    	investment_money=#{investmentMoney},
+    	</if>
+    	<if test="startInvestmentMoney!=null">
+    	start_investment_money=#{startInvestmentMoney},
+    	</if>
+    	<if test="interestMethod!=null">
+    	interest_method=#{interestMethod},
+    	</if>
+    	<if test="repaymentMethod!=null">
+    	repayment_method=#{repaymentMethod},
+    	</if>
+    	<if test="pvs!=null">
+    	pvs=#{pvs},
+    	</if>
+    	<if test="uvs!=null">
+    	uvs=#{uvs},
+    	</if>
+    	<if test="ips!=null">
+    	ips=#{ips},
+    	</if>
+    	<if test="readingNumber!=null">
+    	reading_number=#{readingNumber},
+    	</if>
+    	<if test="redirectUrl!=null">
+    	redirect_url=#{redirectUrl},
+    	</if>
+    	<if test="status!=null">
+    	status=#{status},
+    	</if>
+    	<if test="financialCateId!=null">
+    	financial_cate_id=#{financialCateId},
+    	</if>
+    	<if test="createDate!=null">
+    	create_date=#{createDate},
+    	</if>
+    	<if test="updateDate!=null">
+    	update_date=#{updateDate}
+    	</if>
+   </set> 
+    WHERE
+    	 financial_id=#{financialId} 
+</update> 
+<!-- 删除书-->
+<delete id="delFinancial"  parameterType="Integer" >  
+    DELETE FROM
+    	 financial_tb 
+    	 WHERE financial_id=#{financialId}
+</delete>  
+<!-- 加载书-->
+<select id="loadFinancial" parameterType="Integer" resultType="Financial" >
+SELECT 
+		 financial_id,
+	 	 title,
+   		 term,
+   		 recommend,
+   		 img_address,
+   		 strategy,
+   		 annual_transformation,
+   		 net_add_interest,
+   		 comprehensive_annual_transformation,
+   		 project_total_money,
+   		 investment_money,
+   		 start_investment_money,
+   		 interest_method,
+   		 repayment_method,
+   		 pvs,
+   		 uvs,
+   		 ips,
+   		 reading_number,
+   		 redirect_url,
+   		 status,
+   		 financial_cate_id,
+   		 create_date,
+   		 update_date
+FROM financial_tb 
+WHERE financial_id=#{financialId}
+</select>
+<!-- 加载small书-->
+<select id="loadSmallFinancial" parameterType="Integer" resultType="Financial" >
+SELECT 
+		 financial_id,
+	 	 title,
+   		 term,
+   		 recommend,
+   		 img_address,
+   		<!--  strategy, -->
+   		 annual_transformation,
+   		 net_add_interest,
+   		 comprehensive_annual_transformation,
+   		 project_total_money,
+   		 investment_money,
+   		 start_investment_money,
+   		 interest_method,
+   		 repayment_method,
+   		 pvs,
+   		 uvs,
+   		 ips,
+   		 reading_number,
+   		 redirect_url,
+   		 status,
+   		 financial_cate_id,
+   		 create_date,
+   		 update_date
+FROM financial_tb 
+WHERE financial_id=#{financialId}
+</select>
+
+<!-- 分页查询书-->
+<select id="browsePagingFinancial" resultType="Financial">  
+        SELECT
+	     financial_id,
+	 	 title,
+   		 term,
+   		 recommend,
+   		 img_address,
+   		 <!-- strategy, -->
+   		 annual_transformation,
+   		 net_add_interest,
+   		 comprehensive_annual_transformation,
+   		 project_total_money,
+   		 investment_money,
+   		 start_investment_money,
+   		 interest_method,
+   		 repayment_method,
+   		 pvs,
+   		 uvs,
+   		 ips,
+   		 reading_number,
+   		 redirect_url,
+   		 status,
+   		 financial_cate_id,
+   		 create_date,
+   		 update_date
+	FROM financial_tb
+	<where>
+	<if test="recommend!=null">
+	AND recommend=#{recommend}
+	</if>
+	<if test="financialCateId!=null">
+	AND financial_cate_id=#{financialCateId}
+	</if>
+	<if test="createDate!=null">
+	AND DATE(create_date)=DATE(#{createDate})
+	</if>
+	<if test="updateDate!=null">
+	AND DATE(update_date)=DATE(#{updateDate})
+	</if>
+	<if test="status!=null">
+	AND status=#{status}
+	</if>
+	AND ${orderName} 
+	<if test="orderWay=='asc'">
+	<![CDATA[>=]]> 
+	</if>
+	<if test="orderWay=='desc'">
+	  <![CDATA[<= ]]>
+	</if>
+	(SELECT ${orderName} FROM financial_tb 
+	<where>
+	<if test="recommend!=null">
+	AND recommend=#{recommend}
+	</if>
+	<if test="financialCateId!=null">
+	AND financial_cate_id=#{financialCateId}
+	</if>
+	<if test="createDate!=null">
+	AND DATE(create_date)=DATE(#{createDate})
+	</if>
+	<if test="updateDate!=null">
+	AND DATE(update_date)=DATE(#{updateDate})
+	</if>
+	<if test="status!=null">
+	AND status=#{status}
+	</if>
+	</where>
+		ORDER BY 
+			${orderName}  ${orderWay}
+		LIMIT #{pageNum}, 1
+		) 
+	</where>
+	ORDER BY
+		${orderName}  ${orderWay}
+	LIMIT
+		#{pageSize}
+</select> 
+
+<!-- 统计记录条数 -->
+<select id="countAll"  resultType="int">  
+	SELECT
+	 	count(financial_id)
+	FROM financial_tb
+	<where>
+	<if test="recommend!=null">
+	AND recommend=#{recommend}
+	</if>
+	<if test="financialCateId!=null">
+	AND financial_cate_id=#{financialCateId}
+	</if>
+	<if test="createDate!=null">
+	AND DATE(create_date)=DATE(#{createDate})
+	</if>
+	<if test="updateDate!=null">
+	AND DATE(update_date)=DATE(#{updateDate})
+	</if>
+	<if test="status!=null">
+	AND status=#{status}
+	</if>
+	</where>
+</select>   
+   
+ 
+</mapper>
